@@ -13,12 +13,17 @@ public class MainManager : MonoBehaviour
 
     [SerializeField] Text ScoreText;
     [SerializeField] Text bestScore;
+    [SerializeField] TextMeshProUGUI playerNameText;
     [SerializeField] GameObject gameOverScreen;
     [SerializeField] GameObject highScoreScreen;
+    [SerializeField] GameObject inputNameScreen;
     [SerializeField] TMP_InputField playerName;
+    [SerializeField] TMP_InputField inputPlayerName;
     
     private bool m_Started = false;
     private int m_Points;
+    private string activePlayerName;
+    private bool hasName = false;
     
     public bool m_GameOver = false;
 
@@ -41,12 +46,14 @@ public class MainManager : MonoBehaviour
             }
         }
 
+
+
         bestScore.text = $"Best Score: {GameManager.Instance.topPlayers[0]} - {GameManager.Instance.topScore[0]}";
     }
 
     private void Update()
     {
-        if (!m_Started)
+        if (!m_Started && hasName)
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -66,6 +73,8 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }*/
+
+        
     }
 
     void AddPoint(int point)
@@ -91,11 +100,11 @@ public class MainManager : MonoBehaviour
 
     public void SubmitHighScore()
     {
-        if(playerName.text.Length != 0)
+        if(activePlayerName != null)//(playerName.text.Length != 0)
         {
-            string name = playerName.text;
+            //string name = playerName.text;
 
-            GameManager.Instance.UpdateTopPlayers(name, m_Points);
+            GameManager.Instance.UpdateTopPlayers(activePlayerName, m_Points);
 
             highScoreScreen.SetActive(false);
             gameOverScreen.SetActive(true);
@@ -119,29 +128,20 @@ public class MainManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    string GetName()
+    public void GetName()
     {
-        string text = null;
-
-        foreach(char c in Input.inputString)
+        if (inputPlayerName.text.Length != 0)
         {
-            if (c == '\b') // backspace
-            {
-                if(text.Length != 0)
-                {
-                    text = text.Substring(0, text.Length - 1);
-                }
-            }
-            else if((c == '\n') || (c == '\r')) // enter/return
-            {
-                return text;
-            }
-            else
-            {
-                text += c;
-            }
-        }
+            activePlayerName = inputPlayerName.text;
 
-        return text;
+            inputNameScreen.SetActive(false);
+            playerNameText.SetText(activePlayerName);
+            hasName = true;
+
+        }
+        else
+        {
+            return;
+        }
     }
 }
